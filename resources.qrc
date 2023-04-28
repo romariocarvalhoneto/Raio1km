@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/raio1km" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
