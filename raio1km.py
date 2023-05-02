@@ -53,6 +53,7 @@ class Raio1Km:
         self.iface = iface
         self.mapLayerComboBox = None
         self.button_ok = None
+        self.buttonOnOff = None
         plugin_dir = os.path.dirname(__file__)
         self.tmpfile = f'{plugin_dir}\\raio1km.qpt'
         self.root = QgsLayerTree()   ### IMPORTANTE ser atributo da classe para não quebrar o QGIS toda a vez
@@ -62,26 +63,33 @@ class Raio1Km:
         """Create the QgsMapLayerComboBox and button inside the QGIS GUI."""
 
         self.mapLayerComboBox = QgsMapLayerComboBox(self.iface.mainWindow())
-        self.mapLayerComboBox.setFixedWidth(150)
+        self.mapLayerComboBox.setFixedWidth(140)
         self.mapLayerComboBox.setFilters(QgsMapLayerProxyModel.PolygonLayer)
         self.mapLayerComboBox.setToolTip('Selecione ANM')
+        self.mapLayerComboBox.activated.connect(self.changeButtonStateToOn)
 
         self.button_ok = QPushButton(self.iface.mainWindow())
-        self.button_ok.setFixedWidth(70)
+        self.button_ok.setFixedWidth(60)
         self.button_ok.setText('Raio 1 Km')
         self.button_ok.setToolTip('Faz o Desenho')
+        self.button_ok.setEnabled(False)
         self.button_ok.clicked.connect(self.desenho) #self.run)
 
         self.mapComboBox_icone = self.iface.addToolBarWidget(self.mapLayerComboBox)
         self.button_icone = self.iface.addToolBarWidget(self.button_ok)
 
-
+        
     def unload(self):
         """Removes the plugin from QGIS GUI."""
 
         self.iface.removeToolBarIcon(self.mapComboBox_icone)
         self.iface.removeToolBarIcon(self.button_icone)
 
+
+    def changeButtonStateToOn(self):
+        """Change the button state to on"""
+        self.button_ok.setEnabled(True)
+            
 
     def layout_imagem(self, nome_layout):
         """Abre o modelo layout pronto. """
@@ -321,7 +329,8 @@ class Raio1Km:
             layout_preenchido = self.layout_imagem(f"{nome_poligono}_{timestr}")
             iface.openLayoutDesigner(layout_preenchido)
 
-
+        self.button_ok.setEnabled(False)
         ## TODO: adicionar apenas os shapes criados por aqui e não todos os que estão no QGIS
+        ## BUG: Quando usa o Plugin e depois desabilita e habilita o plugin de novo, o QGIS quebra
         ## TESTAR para debugging: substituir as funções por prints simples e rodar. Ir simplificando, mantendo os métodos
         ## até achar o que está errado. Em último caso, mandar em fórum a vesão simplificada.
